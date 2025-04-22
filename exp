@@ -1,0 +1,375 @@
+2.STUDY OF ML LIBRARIES &TOOLS PYTHON 
+import numpy as np
+X = np.array([[1, 2], [3, 4], [5, 6]])
+y = np.array([1, 2, 3])
+mean = np.mean(y, axis=0)
+print("Mean of features:", mean)
+import pandas as pd
+data = {
+    'Country': ['Brazil', 'Russia', 'India', None],
+    'Population': [200.4, 143.5, None, 52.98]
+}
+df = pd.DataFrame(data)
+df['Population'].fillna(df['Population'].mean(), inplace=True)
+print(df)
+import tensorflow as tf
+node1 = tf.constant(3, dtype=tf.int32)
+node2 = tf.constant(5, dtype=tf.int32)
+node3 = tf.add(node1, node2)
+print("sum of node1 and node2 is :", node3)
+graph = tf.Graph()
+with graph.as_default():
+    variable     = tf.Variable(42, name='foo')
+    initialize   = tf.compat.v1.global_variables_initializer()
+    assign       = variable.assign(13)
+    assign_add   = variable.assign_add(13)
+    with tf.compat.v1.Session() as sess:
+        sess.run(initialize)
+        sess.run(assign)
+        sess.run(assign_add)
+        print(sess.run(variable))
+tensor_a   = tf.constant([[1, 2]], dtype=tf.int32)
+tensor_b   = tf.constant([[3, 4]], dtype=tf.int32)
+tensor_add = tf.add(tensor_a, tensor_b)
+print(tensor_add)
+x = tf.constant(3.0)
+y = tf.constant(4.0)
+z = x + y
+print(z.numpy())
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+iris = load_iris()
+X, y           = iris.data, iris.target
+feature_names  = iris.feature_names
+target_names   = iris.target_names
+print("Feature names:", feature_names)
+print("Target names:", target_names)
+print("\nFirst 10 rows of X:\n", X[:10])
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1
+)
+print(X_train.shape)
+print(X_test.shape)
+print(y_train.shape)
+print(y_test.shape)
+
+
+3.IMPLEMENTATION OF LINEAR REGRESSION IN PYTHON
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+HouseDF = pd.read_csv('USA_Housing.csv')
+HouseDF.head()
+HouseDF.info()
+HouseDF.describe()
+sns.pairplot(HouseDF)
+numerical_features = HouseDF.select_dtypes(include=np.number)
+sns.heatmap(numerical_features.corr(), annot=True)
+X = HouseDF[['Avg. Area Income',
+             'Avg. Area House Age',
+             'Avg. Area Number of Rooms',
+             'Avg. Area Number of Bedrooms',
+             'Area Population']]
+y = HouseDF['Price']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.4, random_state=101
+)
+lm = LinearRegression()
+lm.fit(X_train, y_train)
+print("Intercept:", lm.intercept_)
+coeff_df = pd.DataFrame(lm.coef_, X.columns, columns=['Coefficient'])
+print(coeff_df)
+predictions = lm.predict(X_test)
+plt.scatter(y_test, predictions)
+plt.xlabel('Actual Price')
+plt.ylabel('Predicted Price')
+plt.show()
+sns.distplot(y_test - predictions, bins=50)
+plt.xlabel('Residuals (Actual - Predicted)')
+plt.show()
+mse = mean_squared_error(y_test, predictions)
+r2  = r2_score(y_test, predictions)
+print("Mean Squared Error:", mse)
+print("R² Score:", r2)
+
+
+4.TO IMP LOGISTIC REGRESSION ALGORTIHM 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+titanic_data = pd.read_csv('train.csv')
+print(titanic_data.head())
+print(titanic_data.shape)
+print(titanic_data.info())
+print(titanic_data.isnull().sum())
+titanic_data = titanic_data.drop(columns=['Cabin'], axis=1)
+titanic_data['Age'].fillna(titanic_data['Age'].mean(), inplace=True)
+titanic_data['Embarked'].fillna(titanic_data['Embarked'].mode()[0], inplace=True)
+print(titanic_data.describe())
+print(titanic_data['Survived'].value_counts())
+sns.set()
+sns.countplot(x='Survived', data=titanic_data)
+plt.show()
+sns.countplot(x='Sex', data=titanic_data)
+plt.show()
+sns.countplot(x='Sex', hue='Survived', data=titanic_data)
+plt.show()
+sns.countplot(x='Pclass', data=titanic_data)
+plt.show()
+sns.countplot(x='Pclass', hue='Survived', data=titanic_data)
+plt.show()
+titanic_data.replace({
+    'Sex': {'male': 0, 'female': 1},
+    'Embarked': {'S': 0, 'C': 1, 'Q': 2}
+}, inplace=True)
+titanic_data = titanic_data.infer_objects(copy=False)
+X = titanic_data.drop(columns=['PassengerId', 'Name', 'Ticket', 'Survived'], axis=1)
+Y = titanic_data['Survived']
+print("Features shape:", X.shape)
+print("Target shape:", Y.shape)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=2)
+print("Train/Test split:", X_train.shape, X_test.shape)
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, Y_train)
+train_preds = model.predict(X_train)
+print("Training Accuracy:", accuracy_score(Y_train, train_preds))
+test_preds = model.predict(X_test)
+print("Test Accuracy:", accuracy_score(Y_test, test_preds))
+
+
+5.TO IMP SUPPORT VECTOR MECHANISM
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+iris = load_iris()
+iris.feature_names
+iris.target_names
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df.head()
+df['target'] = iris.target
+df.head()
+df['flower_name'] = df.target.apply(lambda x: iris.target_names[x])
+df.head()
+
+import matplotlib.pyplot as plt
+%matplotlib inline
+df0 = df[df.target == 0]
+df1 = df[df.target == 1]
+df2 = df[df.target == 2]
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.scatter(df0['sepal length (cm)'], df0['sepal width (cm)'], color="green", marker='+')
+plt.scatter(df1['sepal length (cm)'], df1['sepal width (cm)'], color="blue", marker='.')
+plt.xlabel('Petal Length')
+plt.ylabel('Petal Width')
+plt.scatter(df0['petal length (cm)'], df0['petal width (cm)'], color="green", marker='+')
+plt.scatter(df1['petal length (cm)'], df1['petal width (cm)'], color="blue", marker='.')
+
+from sklearn.model_selection import train_test_split
+X = df.drop(['target','flower_name'], axis='columns')
+y = df.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+len(X_train)
+len(X_test)
+
+from sklearn.svm import SVC
+model = SVC()
+model.fit(X_train, y_train)
+model.score(X_test, y_test)
+model.predict([[4.8, 3.0, 1.5, 0.3]])
+model.predict([[6.5, 3.0, 5.5, 2.0]])
+model.predict([[5.5, 2.8, 4.2, 1.3]])
+model_C = SVC(C=100)
+model_C.fit(X_train, y_train)
+model_C.score(X_test, y_test)
+model_C = SVC(C=10)
+model_C.fit(X_train, y_train)
+model_C.score(X_test, y_test)
+model_linear_kernal = SVC(kernel='linear')
+model_linear_kernal.fit(X_train, y_train)
+model_linear_kernal.score(X_test, y_test)
+
+
+6.IMPLEMENTATION OF HEBBIAN LEARNING
+def hebbian_learning(samples):
+    print(f'{"Input":^8} {"target":^6} {"weight changes":^15} {"weights":^25}')
+    w1, w2, b = 0, 0, 0
+    print(' ' * 30 + f'({w1:4},{w2:4},{b:4})')
+    for x1, x2, y in samples:
+        w1 = w1 + x1 * y
+        w2 = w2 + x2 * y
+        b = b + y
+        print(f'({x1:2},{x2:2} {y:4}) ({x1*y:4}, {x2*y:4}, {y:4}) ({w1:4},{w2:4},{b:4})')
+AND_samples = {
+    'binary_input_binary_output': [
+        [1, 1, 1],
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+    ],
+    'binary_input_bipolar_output': [
+        [1, 1, 1],
+        [1, 0, -1],
+        [0, 1, -1],
+        [0, 0, -1]
+    ],
+    'bipolar_input_bipolar_output': [
+        [1, 1, 1],
+        [1, -1, -1],
+        [-1, 1, -1],
+        [-1, -1, -1]
+    ]
+}
+print('AND with binary input and binary output')
+hebbian_learning(AND_samples['binary_input_binary_output'])
+print('AND with binary input and bipolar output')
+hebbian_learning(AND_samples['binary_input_bipolar_output'])
+print('AND with bipolar input and bipolar output')
+hebbian_learning(AND_samples['bipolar_input_bipolar_output'])
+
+
+7.STUDY OF EXPECTAION-MAXI ALGO
+import numpy as np
+data = [
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+    [1, 0, 1, 1, 0, 1, 1, 1, 1, 0]
+]
+theta_A, theta_B = 0.6, 0.5
+threshold = 1e-4
+max_iterations = 5
+iteration = 0
+while iteration < max_iterations:
+    iteration += 1
+    prev_theta_A, prev_theta_B = theta_A, theta_B
+    P_A, P_B = [], []
+
+    for seq in data:
+        h = sum(seq)
+        t = len(seq) - h
+        L_A = (theta_A ** h) * ((1 - theta_A) ** t)
+        L_B = (theta_B ** h) * ((1 - theta_B) ** t)
+        denom = L_A + L_B
+        P_A_i = L_A / denom if denom > 0 else 0.5
+        P_B_i = L_B / denom if denom > 0 else 0.5
+        P_A.append(P_A_i)
+        P_B.append(P_B_i)
+
+    total_heads_A = sum(P_A[i] * sum(data[i]) for i in range(len(data)))
+    total_flips_A = sum(P_A[i] * len(data[i]) for i in range(len(data)))
+    theta_A = total_heads_A / total_flips_A if total_flips_A else prev_theta_A
+
+    total_heads_B = sum(P_B[i] * sum(data[i]) for i in range(len(data)))
+    total_flips_B = sum(P_B[i] * len(data[i]) for i in range(len(data)))
+    theta_B = total_heads_B / total_flips_B if total_flips_B else prev_theta_B
+
+    if abs(theta_A - prev_theta_A) < threshold and abs(theta_B - prev_theta_B) < threshold:
+        break
+print(f"Stopped after {iteration} iterations.")
+print(f"Estimated theta_A: {theta_A:.6f}")
+print(f"Estimated theta_B: {theta_B:.6f}")
+
+
+8.IMP OF MCCULLOCH PITS MODEL
+import numpy as np
+x1=np.array([0,0,1,1])
+x2=np.array([0,1,0,1])
+y=np.array([0,0,0,1])
+#w1=1
+#w2=1
+#theta=2
+w1=int(input('Enter the weight (w1)='))
+w2=int(input('Enter the weight (w2)='))
+theta=int(input('Enter the threshold (theta1)='))
+f=x1*w1+x2*w2
+y_predict=(f>=theta).astype(int)
+if np.all(y==y_predict):
+    print('correct weights and threshold') 
+    print('w1=',w1)                       
+    print('w2=',w2)                       
+    print('threshold=',theta)             
+else:
+    print('change the weights/threshold')  
+
+
+9.IMP OF SINGLE LAYER PERCEPTRON LEARN ALGO
+#w1, w2, b = 0.5, 0.5, -1
+w1, w2, b = 1, 1, 1
+def activate(x):
+    return 1 if x >= 0 else 0 
+def train_perceptron(inputs, desired_outputs, learning_rate, epochs):
+    global w1, w2, b
+    for epoch in range(epochs):
+        total_error = 0
+        for i in range(len(inputs)):
+            A, B = inputs[i]
+            target_output = desired_outputs[i]
+            output = activate(w1 * A + w2 * B + b)
+            error = target_output - output
+            w1 += learning_rate * error * A
+            w2 += learning_rate * error * B
+            b += learning_rate * error
+            total_error += abs(error)
+        if total_error == 0:
+          break
+inputs = [(0, 0), (0, 1), (1, 0), (1, 1)]
+desired_outputs = [0, 0, 0, 1]
+learning_rate = 0.1
+epochs = 100
+train_perceptron(inputs, desired_outputs, learning_rate, epochs)
+for i in range(len(inputs)):
+    A, B = inputs[i]
+    output = activate(w1 * A + w2 * B + b)
+    print(f"Input: ({A}, {B}) Output: {output}")
+    print(f"W0 W1 W2: ({b}, {w1},{w2}) Output: {output}")
+
+
+10.IMP OF PCA
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import numpy as np
+
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+df = pd.read_csv(url, names=['sepal length','sepal width','petal length','petal width','target'])
+
+features = ['sepal length','sepal width','petal length','petal width']
+x = df.loc[:, features].values
+y = df.loc[:, ['target']].values
+
+x = StandardScaler().fit_transform(x)
+x
+
+pca = PCA(n_components=2)
+principalComponents = pca.fit_transform(x)
+principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1','principal component 2'])
+principalDf
+
+finalDf = pd.concat([principalDf, df[['target']]], axis=1)
+finalDf
+
+plt.figure(figsize=(8,8))
+target_mapping = {'Iris-setosa':0,'Iris-versicolor':1,'Iris-virginica':2}
+colors_num = df['target'].map(target_mapping)
+plt.scatter(x[:,0], x[:,1], c=colors_num, cmap='plasma')
+plt.xlabel('pc1')
+plt.ylabel('pc2')
+plt.show()
+
+pca.explained_variance_ratio_
+
+  
+
+
